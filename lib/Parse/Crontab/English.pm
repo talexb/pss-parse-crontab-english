@@ -35,6 +35,19 @@ TO COME
 
 =cut
 
+sub new
+{
+    my ( $class, $args ) = @_;
+
+    my $base = Parse::Crontab->new ( file => $args->{ file } );
+    defined $base or return undef;
+
+    my $self = { base => $base };
+
+    bless ( $self, $class );
+    return $self;
+}
+
 
 =head1 AUTHOR
 
