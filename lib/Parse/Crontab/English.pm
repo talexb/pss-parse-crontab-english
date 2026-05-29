@@ -45,7 +45,26 @@ sub new
     my $self = { base => $base };
 
     bless ( $self, $class );
+
+    $self->process;
     return $self;
+}
+
+sub process
+{
+    my ( $self ) = @_;
+
+    my %data;
+    foreach my $line ( @{ $self->{ data }{ entries } } ) {
+
+      push ( @{ $data{ $line->{ command } } },
+        { day_range  => $line->{ schedule }{ day }{ range },
+          dow_range  => $line->{ schedule }{ day_of_week }{ range },
+          hour_range => $line->{ schedule }{ hour }{ range },
+          min_range  => $line->{ schedule }{ min }{ range },
+          mon_range  => $line->{ schedule }{ mon }{ range } } );
+    }
+    $self->{ summary } = \%data;
 }
 
 
