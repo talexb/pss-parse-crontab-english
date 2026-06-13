@@ -46,16 +46,16 @@ sub new
 
     bless ( $self, $class );
 
-    $self->process;
+    $self->load;
     return $self;
 }
 
-sub process
+sub load
 {
     my ( $self ) = @_;
 
     my %data;
-    foreach my $line ( @{ $self->{ data }{ entries } } ) {
+    foreach my $line ( @{ $self->{ base }{ entries } } ) {
 
       push ( @{ $data{ $line->{ command } } },
         { day_range  => $line->{ schedule }{ day }{ range },

@@ -19,6 +19,7 @@ my $test_file = "$Bin/crontab.test";
 
     is ( ref $obj->{ base }{ entries }, 'ARRAY', "Expected an AoA data type" );
     ok ( exists ( $obj->{ summary } ), "Summary exists" );
+    is ( 45, scalar keys %{ $obj->{ summary } }, "Check key count in summary" );
 
     done_testing;
 }
