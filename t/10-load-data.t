@@ -29,11 +29,18 @@ my $test_file = "$Bin/crontab.test";
 
         foreach my $e ( @{ $obj->{ summary }{ $ent } } ) {
 
-          if ( $e->{ day_range }[ 0 ] == 1 &&
-	       $e->{ day_range }[ 1 ] == 31 ) {
+          #  Check for all days ..
 
-	    is ( $e->{ days_english }, 'all days', "Full day range -> all days" );
-	  }
+          if ( $e->{ day_range }[ 0 ] == 1 &&
+               $e->{ day_range }[ 1 ] == 31 ) {
+
+            is ( $e->{ days_english }, 'all days', "Full day range -> all days" );
+          }
+
+          #  Check for original line ..
+
+          my $orig_line = $obj->{ base }{ entries }[ $e->{ line_num } ];
+          ok ( defined $orig_line, "Original line exists" );
         }
       }
     }

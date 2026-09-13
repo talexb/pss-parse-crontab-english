@@ -55,6 +55,8 @@ sub load
     my ( $self ) = @_;
 
     my %data;
+    my $line_num = 0;   #  Line number from original entry.
+
     foreach my $line ( @{ $self->{ base }{ entries } } ) {
 
       push ( @{ $data{ $line->{ command } } },
@@ -74,6 +76,10 @@ sub load
 
         $entry->{ days_english } = 'all days';
       }
+
+      #  Add line number ..
+
+      $data{ $line->{ command } }->[ -1 ]{ line_num } = $line_num++;
     }
     $self->{ summary } = \%data;
 }
