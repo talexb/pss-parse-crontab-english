@@ -55,6 +55,8 @@ sub load
     my ( $self ) = @_;
 
     my %data;
+    my $line_num = 0;   #  Line number from original entry.
+
     foreach my $line ( @{ $self->{ base }{ entries } } ) {
 
       push ( @{ $data{ $line->{ command } } },
@@ -63,6 +65,8 @@ sub load
           hour_range => $line->{ schedule }{ hour }{ range },
           min_range  => $line->{ schedule }{ min }{ range },
           mon_range  => $line->{ schedule }{ mon }{ range } } );
+
+      $data{ $line->{ command } }->[ -1 ]{ line_num } = $line_num++;
     }
     $self->{ summary } = \%data;
 }

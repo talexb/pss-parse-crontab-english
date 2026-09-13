@@ -21,5 +21,21 @@ my $test_file = "$Bin/crontab.test";
     ok ( exists ( $obj->{ summary } ), "Summary exists" );
     is ( 45, scalar keys %{ $obj->{ summary } }, "Check key count in summary" );
 
+    #  Let's check back with the original on a few things.
+
+    TODO: {
+
+      local $TODO = "Under development";
+      foreach my $cmd ( keys %{ $obj->{ summary } } ) {
+
+        my $loaded = $obj->{ summary }{ $cmd };
+        ok ( defined $loaded, "Load summary" );
+        cmp_ok ( $loaded->{ line_num }, '<', 45, "Check line count" );
+
+        my $orig_line = $obj->{ base }{ entries }[ $loaded->{ line_num } ];
+        ok ( defined $orig_line, "Original line exists" );
+      }
+    }
+
     done_testing;
 }
