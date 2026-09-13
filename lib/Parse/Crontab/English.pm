@@ -63,6 +63,17 @@ sub load
           hour_range => $line->{ schedule }{ hour }{ range },
           min_range  => $line->{ schedule }{ min }{ range },
           mon_range  => $line->{ schedule }{ mon }{ range } } );
+
+      #  Get the entry so we have less typing to do. Then, if we see the range
+      #  of days is min to max, add 'all days' to the english description. More
+      #  to come, obviously.
+
+      my $entry = $data{ $line->{ command } }[ -1 ];
+      if ( $entry->{ day_range }->[ 0 ] ==  1 &&
+           $entry->{ day_range }->[ 1 ] == 31 ) {
+
+        $entry->{ days_english } = 'all days';
+      }
     }
     $self->{ summary } = \%data;
 }
