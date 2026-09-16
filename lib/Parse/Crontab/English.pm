@@ -94,15 +94,23 @@ sub load
 
         $entry->{ hours_minutes } = "every minute of the following hours: $hours";
 
-        #  Later, we can convert the 24 hour values to am/pm if necessary.
-        #  We can also do an Oxford comma if we like.
+        #  Later, we can convert the 24 hour values to am/pm if necessary. Or I
+        #  might have a function that takes the hour and minute and returns an
+        #  appropriately formatted time. (There's a bit of copy-pasta going on
+        #  here, obviously.)
+
+        $entry->{ hm_short } = "every minute, for " .
+          ( scalar @{ $entry->{ hour_range } } ) . " hours, from " .
+          @{ $entry->{ hour_range } }[  0 ] . "h00 to " .
+          @{ $entry->{ hour_range } }[ -1 ] . "h00";
 
       } else {
 
-        #  We're going to show the hours and minutes in a list. If this ends up
-        #  being long, I might shorten it somehow.
+        #  We're going to show the hours and minutes in a list. The shorter
+        #  version follows.
 
-        my $minutes = join ( ', ', map { sprintf ( ":%02d", $_ ) } @{ $entry->{ min_range } } );
+        my $minutes =
+          join ( ', ', map { sprintf ( ":%02d", $_ ) } @{ $entry->{ min_range } } );
         if ( $minutes =~ /, / ) { $minutes =~ s/(.+), /$1, and /; }
 
         #  Clean up the output a little.
@@ -110,6 +118,27 @@ sub load
         $entry->{ hours_minutes } =
           ( @{ $entry->{ hour_range } } > 1 ? "at the hours" : "at" ) .
           " $hours, at $minutes after the hour";
+
+        #  Prepare the short description. The description for the one-time cron
+        #  job is much shorter.
+
+        my $times = scalar @{ $entry->{ hour_range } } *
+                    scalar @{ $entry->{ min_range } };
+
+        if ( $times == 1 ) {
+
+          $entry->{ hm_short } = "Once, at $entry->{ hour_range }->[ 0 ]h" .
+            sprintf ( "%02d", $entry->{ min_range }->[ 0 ] );
+
+        } else {
+
+          $entry->{ hm_short } = "$times times, starting at " .
+            @{ $entry->{ hour_range } }[  0 ] . "h" .
+            sprintf ( "%02d", @{ $entry->{ min_range } }[  0 ] ) .
+            ", and ending at " . 
+            @{ $entry->{ hour_range } }[ -1 ] . "h" .
+            sprintf ( "%02d", @{ $entry->{ min_range } }[ -1 ] );
+        }
       }
 
       #  Add line number ..

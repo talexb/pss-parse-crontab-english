@@ -48,6 +48,11 @@ my $test_file = "$Bin/crontab.test";
           ok ( defined $e->{ hours_minutes }, "Hours and minutes defined" );
           diag ( "H+M: $e->{ hours_minutes }" );
 
+          #  Check that something's there for the hr_short ..
+
+          ok ( defined $e->{ hm_short }, "Hours and minutes short defined" );
+          diag ( "HM: $e->{ hm_short }" );
+
           #  Check for original line ..
 
           my $orig_line = $obj->{ base }{ entries }[ $e->{ line_num } ];
