@@ -60,21 +60,41 @@ sub load
     foreach my $line ( @{ $self->{ base }{ entries } } ) {
 
       push ( @{ $data{ $line->{ command } } },
-        { day_range  => $line->{ schedule }{ day }{ range },
-          dow_range  => $line->{ schedule }{ day_of_week }{ range },
-          hour_range => $line->{ schedule }{ hour }{ range },
-          min_range  => $line->{ schedule }{ min }{ range },
-          mon_range  => $line->{ schedule }{ mon }{ range } } );
+        { day_range  => $line->{ schedule }{ day }{ expanded },
+          dow_range  => $line->{ schedule }{ day_of_week }{ expanded },
+          hour_range => $line->{ schedule }{ hour }{ expanded },
+          min_range  => $line->{ schedule }{ minute }{ expanded },
+          mon_range  => $line->{ schedule }{ month }{ expanded } } );
 
       #  Get the entry so we have less typing to do. Then, if we see the range
       #  of days is min to max, add 'all days' to the english description. More
       #  to come, obviously.
 
       my $entry = $data{ $line->{ command } }[ -1 ];
-      if ( $entry->{ day_range }->[ 0 ] ==  1 &&
-           $entry->{ day_range }->[ 1 ] == 31 ) {
+      if ( @{ $entry->{ day_range } } == 31 ) {
 
-        $entry->{ days_english } = 'all days';
+        $entry->{ days_english } = 'every day of the month';
+      }
+
+      #  Check Day of Week ..
+
+      if ( @{ $entry->{ dow_range } } == 7 ) {
+
+        $entry->{ dow_english } = 'every day of the week';
+      }
+
+      #  Check hours ..
+
+      if ( @{ $entry->{ hour_range } } == 24 ) {
+
+        $entry->{ hours_english } = 'every hour';
+      }
+
+      #  Check minutes ..
+
+      if ( @{ $entry->{ min_range } } == 60 ) {
+
+        $entry->{ minutes_english } = 'every minute';
       }
 
       #  Add line number ..

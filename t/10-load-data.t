@@ -29,12 +29,18 @@ my $test_file = "$Bin/crontab.test";
 
         foreach my $e ( @{ $obj->{ summary }{ $ent } } ) {
 
-          #  Check for all days ..
+          #  Check for all days of the month ..
 
-          if ( $e->{ day_range }[ 0 ] == 1 &&
-               $e->{ day_range }[ 1 ] == 31 ) {
+          is ( $e->{ days_english },
+            'every day of the month', "Full day range -> every day (month)" );
 
-            is ( $e->{ days_english }, 'all days', "Full day range -> all days" );
+          #  Check for all days of the week ..
+
+          if ( $e->{ day_range }[ 0 ] == 0 &&
+               $e->{ day_range }[ 1 ] == 6 ) {
+
+            is ( $e->{ dow_english },
+              'every day of the week', "Full day range -> every day (week)" );
           }
 
           #  Check for original line ..
