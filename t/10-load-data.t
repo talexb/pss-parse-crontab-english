@@ -43,6 +43,11 @@ my $test_file = "$Bin/crontab.test";
               'every day of the week', "Full day range -> every day (week)" );
           }
 
+          #  Check that something's there for the hours_minutes ..
+
+          ok ( defined $e->{ hours_minutes }, "Hours and minutes defined" );
+          diag ( "H+M: $e->{ hours_minutes }" );
+
           #  Check for original line ..
 
           my $orig_line = $obj->{ base }{ entries }[ $e->{ line_num } ];

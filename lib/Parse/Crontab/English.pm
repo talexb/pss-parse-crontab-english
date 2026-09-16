@@ -76,25 +76,40 @@ sub load
         $entry->{ days_english } = 'every day of the month';
       }
 
-      #  Check Day of Week ..
+      #  Check Day of Week .. (Both 0 and 7 are present -- so 8 entries)
 
-      if ( @{ $entry->{ dow_range } } == 7 ) {
+      if ( @{ $entry->{ dow_range } } == 8 ) {
 
         $entry->{ dow_english } = 'every day of the week';
       }
 
-      #  Check hours ..
+      #  Now I'd like to show all of the possible times. This may be a lot.
 
-      if ( @{ $entry->{ hour_range } } == 24 ) {
+      #  If it's every minute, then just show that, plus the hours.
 
-        $entry->{ hours_english } = 'every hour';
-      }
-
-      #  Check minutes ..
+      my $hours = join ( ', ', map { "${_}h00" } @{ $entry->{ hour_range } } );
+      if ( $hours =~ /, / ) { $hours =~ s/(.+), /$1, and /; }
 
       if ( @{ $entry->{ min_range } } == 60 ) {
 
-        $entry->{ minutes_english } = 'every minute';
+        $entry->{ hours_minutes } = "every minute of the following hours: $hours";
+
+        #  Later, we can convert the 24 hour values to am/pm if necessary.
+        #  We can also do an Oxford comma if we like.
+
+      } else {
+
+        #  We're going to show the hours and minutes in a list. If this ends up
+        #  being long, I might shorten it somehow.
+
+        my $minutes = join ( ', ', map { sprintf ( ":%02d", $_ ) } @{ $entry->{ min_range } } );
+        if ( $minutes =~ /, / ) { $minutes =~ s/(.+), /$1, and /; }
+
+        #  Clean up the output a little.
+
+        $entry->{ hours_minutes } =
+          ( @{ $entry->{ hour_range } } > 1 ? "at the hours" : "at" ) .
+          " $hours, at $minutes after the hour";
       }
 
       #  Add line number ..
