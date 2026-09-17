@@ -71,16 +71,49 @@ sub load
       #  to come, obviously.
 
       my $entry = $data{ $line->{ command } }[ -1 ];
+
+      #  The Days of the Week entry can be 1-7 or 0-6, but the parent module
+      #  will also provide 0-7, which is a little harder to code around. So if
+      #  there are 8 elements (both 0 and 7), I'm going to pop the last value
+      #  off the list. That way, we're left with 0-6 or 1-7.
+
+      if ( @{ $entry->{ dow_range } } == 8 ) {
+
+        pop ( @{ $entry->{ dow_range } } );
+      }
+
       if ( @{ $entry->{ day_range } } == 31 ) {
 
         $entry->{ days_english } = 'every day of the month';
+
+      } else {
+
+        $entry->{ days_english } =
+          "The following " . scalar @{ $entry->{ day_range } } .
+          " days: " . join ( ', ', @{ $entry->{ day_range } } );
+
+        if ( $entry->{ days_english } =~ /, / ) {
+
+          $entry->{ days_english } =~ s/(.+), /$1, and /;
+        }
       }
 
       #  Check Day of Week .. (Both 0 and 7 are present -- so 8 entries)
 
-      if ( @{ $entry->{ dow_range } } == 8 ) {
+      if ( @{ $entry->{ dow_range } } == 7 ) {
 
         $entry->{ dow_english } = 'every day of the week';
+
+      } else {
+
+        $entry->{ dow_english } = 
+          "The following " . scalar @{ $entry->{ dow_range } } .
+          " days of the week: " . join ( ', ', @{ $entry->{ dow_range } } );
+
+        if ( $entry->{ dow_english } =~ /, / ) {
+
+          $entry->{ dow_english } =~ s/(.+), /$1, and /;
+        }
       }
 
       #  Now I'd like to show all of the possible times. This may be a lot.
@@ -141,7 +174,7 @@ sub load
 
       #  Add line number ..
 
-      $data{ $line->{ command } }->[ -1 ]{ line_num } = $line_num++;
+      $entry->{ line_num } = $line_num++;
     }
     $self->{ summary } = \%data;
 }

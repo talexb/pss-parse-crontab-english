@@ -31,17 +31,35 @@ my $test_file = "$Bin/crontab.test";
 
           #  Check for all days of the month ..
 
-          is ( $e->{ days_english },
-            'every day of the month', "Full day range -> every day (month)" );
+          if ( $e->{ day_range }[ 0 ] == 1 && $e->{ day_range }[ -1 ] == 31 ) {
+
+            is ( $e->{ days_english },
+              'every day of the month', "Full day range -> every day (month)" );
+
+          } else {
+
+            like ( $e->{ days_english }, qr/The following \d+ days:/,
+              "Reasonable list of days of the week." );
+            diag ( "Day range is @{ $e->{ day_range } }" );
+          }
 
           #  Check for all days of the week ..
 
-          if ( $e->{ day_range }[ 0 ] == 0 &&
-               $e->{ day_range }[ 1 ] == 6 ) {
+          if ( ( $e->{ dow_range }[  0 ] == 0 &&
+                 $e->{ dow_range }[ -1 ] == 6 ) ||
+               ( $e->{ dow_range }[  0 ] == 1 &&
+                 $e->{ dow_range }[ -1 ] == 7 ) ) {
 
             is ( $e->{ dow_english },
               'every day of the week', "Full day range -> every day (week)" );
+
+          } else {
+
+            like ( $e->{ dow_english }, qr/The following \d+ days of the week:/,
+              "Reasonable list of days of the week." );
+            diag ( "Week day range is @{ $e->{ dow_range } }" );
           }
+          diag ( "DOW: $e->{ dow_english }" );
 
           #  Check that something's there for the hours_minutes ..
 
