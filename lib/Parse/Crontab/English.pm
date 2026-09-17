@@ -101,13 +101,13 @@ sub load
 
         $entry->{ hm_short } = "every minute, for " .
           ( scalar @{ $entry->{ hour_range } } ) . " hours, from " .
-          @{ $entry->{ hour_range } }[  0 ] . "h00 to " .
-          @{ $entry->{ hour_range } }[ -1 ] . "h00";
+          hm ( @{ $entry->{ hour_range } }[  0 ] ) . " to " .
+          hm ( @{ $entry->{ hour_range } }[ -1 ] );
 
       } else {
 
         #  We're going to show the hours and minutes in a list. The shorter
-        #  version follows.
+        #  version of the list follows.
 
         my $minutes =
           join ( ', ', map { sprintf ( ":%02d", $_ ) } @{ $entry->{ min_range } } );
@@ -127,17 +127,15 @@ sub load
 
         if ( $times == 1 ) {
 
-          $entry->{ hm_short } = "Once, at $entry->{ hour_range }->[ 0 ]h" .
-            sprintf ( "%02d", $entry->{ min_range }->[ 0 ] );
+          $entry->{ hm_short } = "Once, at " .
+            hm ( $entry->{ hour_range }->[ 0 ], $entry->{ min_range }->[ 0 ] );
 
         } else {
 
           $entry->{ hm_short } = "$times times, starting at " .
-            @{ $entry->{ hour_range } }[  0 ] . "h" .
-            sprintf ( "%02d", @{ $entry->{ min_range } }[  0 ] ) .
+            hm ( @{ $entry->{ hour_range } }[  0 ], @{ $entry->{ min_range } }[   0 ] ) .
             ", and ending at " . 
-            @{ $entry->{ hour_range } }[ -1 ] . "h" .
-            sprintf ( "%02d", @{ $entry->{ min_range } }[ -1 ] );
+            hm ( @{ $entry->{ hour_range } }[ -1 ], @{ $entry->{ min_range } }[  -1 ] );
         }
       }
 
@@ -146,6 +144,16 @@ sub load
       $data{ $line->{ command } }->[ -1 ]{ line_num } = $line_num++;
     }
     $self->{ summary } = \%data;
+}
+
+#  Format the time into a common format. This will replace a lot of copy pasta
+#  from earlier versions. If called with just an hour, we assume zero minutes.
+
+sub hm
+{
+    my ( $h, $m ) = @_;
+
+    return ( sprintf ( "${h}h%02d", $m // 0 ) );
 }
 
 
