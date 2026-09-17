@@ -1,15 +1,18 @@
 Parse-Crontab-English
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+This module takes a parsed data structure from Parse::Crontab and turns the
+scheduled run times into something that's a bit more readable. So instead of
+having to parse through
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
+    0   21   *   *   *   *   some_shell_script.sh
+
+you'll get an explanation like 'Once, at 21h00'. Although I guess I want 'Once
+daily, at 21h00'.
+
+Longer lists will be expanded completely, but a shorter description will be
+available, so 'at the hours 6h00, 7h00, 8h00, 9h00, 10h00, 11h00, 12h00, 13h00,
+14h00, 15h00, 16h00, 17h00, 18h00, and 19h00, at :45 after the hour' will also
+be available as '14 times, starting at 6h45, and ending at 19h45'.
 
 
 INSTALLATION
