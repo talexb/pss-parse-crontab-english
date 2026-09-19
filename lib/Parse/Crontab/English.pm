@@ -4,6 +4,8 @@ use 5.006;
 use strict;
 use warnings;
 
+use List::Util qw/uniq/;
+
 =head1 NAME
 
 Parse::Crontab::English - Generate useful English documentation on how often a command runs.
@@ -72,15 +74,14 @@ sub load
 
       my $entry = $data{ $line->{ command } }[ -1 ];
 
-      #  The Days of the Week entry can be 1-7 or 0-6, but the parent module
-      #  will also provide 0-7, which is a little harder to code around. So if
-      #  there are 8 elements (both 0 and 7), I'm going to pop the last value
-      #  off the list. That way, we're left with 0-6 or 1-7.
+      #  Well, it looks like the parent module sometimes messes up and reads 7
+      #  (Sunday) as both 0 and 7 -- meaning that we get two entries, both of
+      #  them Sunday. So now I'm going to do some de-duplication on that mess.
+      #  One side effect is that I won't have to pop off the last element of
+      #  the array, since we'll now have a maximum of seven items.
 
-      if ( @{ $entry->{ dow_range } } == 8 ) {
-
-        pop ( @{ $entry->{ dow_range } } );
-      }
+      $entry->{ dow_range } =
+        [ uniq ( map { $_ % 7  } @{ $entry->{ dow_range } } ) ];
 
       if ( @{ $entry->{ day_range } } == 31 ) {
 
@@ -98,11 +99,15 @@ sub load
         }
       }
 
-      #  Check Day of Week .. (Both 0 and 7 are present -- so 8 entries)
+      #  Check Day of Week .. If the range is 0 .. 6, it's every day.
 
       if ( @{ $entry->{ dow_range } } == 7 ) {
 
         $entry->{ dow_english } = 'every day of the week';
+
+      } elsif ( @{ $entry->{ dow_range } } == 1 ) {
+
+        $entry->{ dow_english } = 'just on day ' . $entry->{ dow_range }[ 0 ];
 
       } else {
 

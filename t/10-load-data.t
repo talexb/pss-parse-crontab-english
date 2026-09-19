@@ -53,6 +53,11 @@ my $test_file = "$Bin/crontab.test";
             is ( $e->{ dow_english },
               'every day of the week', "Full day range -> every day (week)" );
 
+          } elsif ( @{ $e->{ dow_range } } == 1 ) {
+
+            like ( $e->{ dow_english },
+              qr/just on day \d/, "Single day of the week" );
+
           } else {
 
             like ( $e->{ dow_english }, qr/The following \d+ days of the week:/,
