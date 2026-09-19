@@ -101,23 +101,39 @@ sub load
 
       #  Check Day of Week .. If the range is 0 .. 6, it's every day.
 
+      my %days = (
+        0 => 'Sunday',   1 => 'Monday', 2 => 'Tuesday',  3 => 'Wednesday',
+        4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday',
+      );
+
       if ( @{ $entry->{ dow_range } } == 7 ) {
 
-        $entry->{ dow_english } = 'every day of the week';
+        $entry->{ dow_number } = 'every day of the week';
+        $entry->{ dow_name }   = 'every day of the week';
 
       } elsif ( @{ $entry->{ dow_range } } == 1 ) {
 
-        $entry->{ dow_english } = 'just on day ' . $entry->{ dow_range }[ 0 ];
+        $entry->{ dow_number } = 'just on day ' .    $entry->{ dow_range }[ 0 ];
+        $entry->{ dow_name }   = 'just on ' . $days{ $entry->{ dow_range }[ 0 ] };
 
       } else {
 
-        $entry->{ dow_english } = 
+        $entry->{ dow_number } = 
           "The following " . scalar @{ $entry->{ dow_range } } .
           " days of the week: " . join ( ', ', @{ $entry->{ dow_range } } );
 
-        if ( $entry->{ dow_english } =~ /, / ) {
+        if ( $entry->{ dow_number } =~ /, / ) {
 
-          $entry->{ dow_english } =~ s/(.+), /$1, and /;
+          $entry->{ dow_number } =~ s/(.+), /$1, and /;
+        }
+
+        $entry->{ dow_name } = 
+          "The following " . scalar @{ $entry->{ dow_range } } .
+          " days of the week: " . join ( ', ', map { $days{ $_ } } @{ $entry->{ dow_range } } );
+
+        if ( $entry->{ dow_name } =~ /, / ) {
+
+          $entry->{ dow_name } =~ s/(.+), /$1, and /;
         }
       }
 

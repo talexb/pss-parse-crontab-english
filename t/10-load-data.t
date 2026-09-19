@@ -50,21 +50,24 @@ my $test_file = "$Bin/crontab.test";
                ( $e->{ dow_range }[  0 ] == 1 &&
                  $e->{ dow_range }[ -1 ] == 7 ) ) {
 
-            is ( $e->{ dow_english },
+            is ( $e->{ dow_number },
               'every day of the week', "Full day range -> every day (week)" );
 
           } elsif ( @{ $e->{ dow_range } } == 1 ) {
 
-            like ( $e->{ dow_english },
-              qr/just on day \d/, "Single day of the week" );
+            like ( $e->{ dow_number },
+              qr/just on day \d/, "Single day of the week (number)" );
+            like ( $e->{ dow_name },
+              qr/just on \w+day/, "Single day of the week (name)" );
 
           } else {
 
-            like ( $e->{ dow_english }, qr/The following \d+ days of the week:/,
+            like ( $e->{ dow_number }, qr/The following \d+ days of the week:/,
               "Reasonable list of days of the week." );
             diag ( "Week day range is @{ $e->{ dow_range } }" );
           }
-          diag ( "DOW: $e->{ dow_english }" );
+          diag ( "DOW-number: $e->{ dow_number }" );
+          diag ( "DOW-name: $e->{ dow_name }" );
 
           #  Check that something's there for the hours_minutes ..
 
@@ -87,7 +90,7 @@ my $test_file = "$Bin/crontab.test";
 
             foreach my $m ( @{ $e->{ min_range } } ) {
 
-              like ( $e->{ hours_minutes }, qr/:$m/, "Saw entry for minute $m" );
+              like ( $e->{ hours_minutes }, qr/:0?$m/, "Saw entry for minute $m" );
             }
           }
 
