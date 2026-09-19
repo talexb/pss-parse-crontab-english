@@ -71,6 +71,26 @@ my $test_file = "$Bin/crontab.test";
           ok ( defined $e->{ hours_minutes }, "Hours and minutes defined" );
           diag ( "H+M: $e->{ hours_minutes }" );
 
+          #  .. and if it's less than every hour, that each hour is present; and
+
+          if ( @{ $e->{ hour_range } } < 24 ) {
+
+            foreach my $h ( @{ $e->{ hour_range } } ) {
+
+              like ( $e->{ hours_minutes }, qr/${h}h00/, "Saw entry for hour $h" );
+            }
+          }
+
+          #  .. and if it's less than every minute, check for those values too.
+
+          if ( @{ $e->{ min_range } } < 60 ) {
+
+            foreach my $m ( @{ $e->{ min_range } } ) {
+
+              like ( $e->{ hours_minutes }, qr/:$m/, "Saw entry for minute $m" );
+            }
+          }
+
           #  Check that something's there for the hr_short ..
 
           ok ( defined $e->{ hm_short }, "Hours and minutes short defined" );
