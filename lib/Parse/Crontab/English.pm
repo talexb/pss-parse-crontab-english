@@ -4,6 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
+use Parse::Crontab;
 use List::Util qw/uniq/;
 
 =head1 NAME
@@ -275,10 +276,14 @@ sub load
 
         } else {
 
-          $entry->{ hm_short } = "$times times, starting at " .
+          $entry->{ hm_short } = "$times times daily (" .
+            ( scalar @{ $entry->{ min_range } } ) . " times an hour), starting at " .
             hm ( @{ $entry->{ hour_range } }[  0 ], @{ $entry->{ min_range } }[   0 ] ) .
             ", and ending at " . 
             hm ( @{ $entry->{ hour_range } }[ -1 ], @{ $entry->{ min_range } }[  -1 ] );
+
+          $entry->{ hm_short } =~ s/\(1 times/(once/;   #  Ugh, English.
+          $entry->{ hm_short } =~ s/\(2 times/(twice/;  #  Ugh, English.
         }
       }
 
