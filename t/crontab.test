@@ -46,3 +46,5 @@
 15	7	*	*	*	cd /home/xyz/tuv && ./save_error_logs.pl ~/qrs run >>sel.out 2>>sel.err
 */5	8-23	*	*	*	cd /home/xyz/tuv && ./save_error_logs.pl ~/tuv run >>sel.out 2>>sel.err
 1	7	*	*	*	cd /home/xyz/tuv && ./cleanup_error_files.pl abc ghi def qrs >>cef.out 2>>cef.err
+2   16  *   *   1,3,5   cd /home/xyz/extra && ./mwf_script.sh >mwf.out 2>mwf.err
+15  9-17 *   *   0-2,4,6 cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err

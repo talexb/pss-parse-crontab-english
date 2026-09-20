@@ -19,7 +19,7 @@ my $test_file = "$Bin/crontab.test";
 
     is ( ref $obj->{ base }{ entries }, 'ARRAY', "Expected an AoA data type" );
     ok ( exists ( $obj->{ summary } ), "Summary exists" );
-    is ( 45, scalar keys %{ $obj->{ summary } }, "Check key count in summary" );
+    is ( 47, scalar keys %{ $obj->{ summary } }, "Check key count in summary" );
 
     foreach my $ent ( keys %{ $obj->{ summary } } ) {
 
@@ -41,10 +41,7 @@ my $test_file = "$Bin/crontab.test";
 
         #  Check for all days of the week ..
 
-        if ( ( $e->{ dow_range }[  0 ] == 0 &&
-               $e->{ dow_range }[ -1 ] == 6 ) ||
-             ( $e->{ dow_range }[  0 ] == 1 &&
-               $e->{ dow_range }[ -1 ] == 7 ) ) {
+        if ( @{ $e->{ dow_range } } == 7 ) {
 
           is ( $e->{ dow_number },
             'every day of the week', "Full day range -> every day (week)" );
@@ -77,7 +74,9 @@ my $test_file = "$Bin/crontab.test";
             #  more. We might also have a single day, followed by a range.
             #  Testing is hard.
 
-            like ( $e->{ dow_name_range }, qr/\w+day to \w+day/, "A single range of days" );
+            like ( $e->{ dow_name_range },
+              qr/\w+day (and|to) \w+day|(\w+day, )+and \w+day/,
+              "A single range of days or two days, or a commified list" );
           }
           # diag ( "DOW-name_range ", $e->{ dow_name_range } );
         }

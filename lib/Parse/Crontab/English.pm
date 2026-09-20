@@ -192,7 +192,7 @@ sub load
 
         #  We may need to capture the last range ..
 
-        if ( @ranges == 0 && defined $first_day ) {
+        if ( @ranges == 0 || defined $first_day ) {
 
           if ( defined $last_day ) {
 
