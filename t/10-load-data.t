@@ -65,6 +65,23 @@ my $test_file = "$Bin/crontab.test";
         # diag ( "DOW-number: $e->{ dow_number }" );
         # diag ( "DOW-name: $e->{ dow_name }" );
 
+        if ( exists $e->{ dow_name_range } ) {
+
+          if ( @{ $e->{ dow_range } } == 1 ) {
+
+            like ( $e->{ dow_name_range }, qr/\w+day/, "A single week day" );
+
+          } else {
+
+            #  This only tests for a single range, when we could have output
+            #  more. We might also have a single day, followed by a range.
+            #  Testing is hard.
+
+            like ( $e->{ dow_name_range }, qr/\w+day to \w+day/, "A single range of days" );
+          }
+          # diag ( "DOW-name_range ", $e->{ dow_name_range } );
+        }
+
         #  Check that something's there for the hours_minutes ..
 
         ok ( defined $e->{ hours_minutes }, "Hours and minutes defined" );

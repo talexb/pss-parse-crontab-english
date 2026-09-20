@@ -135,6 +135,95 @@ sub load
 
           $entry->{ dow_name } =~ s/(.+), /$1, and /;
         }
+
+        #  For my next trick, I'm going to see if I can reduce the list to a
+        #  range, in order to map 1-5 to Monday to Friday. All we know about
+        #  the list of day numbers is that they're ordered.
+
+        my ( $first_day, $last_day, @ranges );
+
+        foreach my $off ( 0 .. 6 ) {
+
+          my $this_day = $entry->{ dow_range }[ $off ];
+          if ( !defined $this_day ) { next; }
+
+          if ( defined $first_day ) {
+
+            if ( defined $last_day ) {
+
+              if ( $last_day + 1 == $this_day ) {
+
+                #  We're still in order, continue.
+
+                $last_day = $this_day;
+
+              } else {
+
+                #  Not in order -- need to close off previous order and start a new one.
+
+                push ( @ranges, [ $first_day, $last_day ] );
+
+                $first_day = $this_day;
+                undef $last_day;
+              }
+              
+            } else {
+
+              if ( $first_day + 1 == $this_day ) {
+
+                #  We're still in order, continue.
+
+                $last_day = $entry->{ dow_range }[ $off ];
+
+              } else {
+
+                #  Not in order -- need to close off previous order and start a new one.
+
+                push ( @ranges, [ $first_day, $first_day ] );
+                $first_day = $entry->{ dow_range }[ $off ];
+              }
+            }
+
+          } else {
+
+            $first_day = $entry->{ dow_range }[ $off ];
+          }
+        }
+
+        #  We may need to capture the last range ..
+
+        if ( @ranges == 0 && defined $first_day ) {
+
+          if ( defined $last_day ) {
+
+            push ( @ranges, [ $first_day, $last_day ] );
+
+          } else {
+
+            push ( @ranges, [ $first_day, $first_day ] );
+          }
+        }
+
+        #  Create name_short using the ranges we've found.
+
+        my @day_list;
+        foreach my $r ( @ranges ) {
+
+          if ( $r->[ 0 ] == $r->[ 1 ] ) {
+
+            push ( @day_list, $days{ $r->[ 0 ] } );
+
+          } else {
+
+            push ( @day_list, "$days{ $r->[ 0 ] } to $days{ $r->[ 1 ] }" );
+          }
+
+          $entry->{ dow_name_range } = join ( ', ', @day_list );
+          if ( $entry->{ dow_name_range } =~ /, / ) {
+
+            $entry->{ dow_name_range } =~ s/(.+), /$1, and /;
+          }
+        }
       }
 
       #  Now I'd like to show all of the possible times. This may be a lot.
