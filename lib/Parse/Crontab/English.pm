@@ -62,6 +62,16 @@ sub load
 
     foreach my $line ( @{ $self->{ base }{ entries } } ) {
 
+      #  First, skip everything that Parse::Crontab didn't find useful.
+
+      if ( !exists $line->{ schedule } ) {
+
+        $line_num++;
+        next;
+      }
+
+      #  Next, save the good stuff.
+
       push ( @{ $data{ $line->{ command } } },
         { day_range  => $line->{ schedule }{ day }{ expanded },
           dow_range  => $line->{ schedule }{ day_of_week }{ expanded },

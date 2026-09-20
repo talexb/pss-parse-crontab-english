@@ -6,6 +6,8 @@ use warnings;
 #  Template script to exercise the Parse::Crontab::English module.
 
 use FindBin qw/$Bin/;
+use File::Temp qw/tempfile/;
+use autodie;
 
 use lib "$Bin/../lib";
 
@@ -13,11 +15,23 @@ use Parse::Crontab::English;
 
 {
     my $filename = pop @ARGV;
-    defined $filename or die "$0: Please specify a crontab listing";
-    ( -e $filename ) or die "$0: Unable to fine $filename";
+    my $fh;
+
+    if ( defined $filename ) {
+
+      ( -e $filename ) or die "$0: Unable to fine $filename";
+
+    } else {
+
+      ( $fh, $filename ) = tempfile();
+
+      print $fh <STDIN>;
+      close $fh;
+
+      -z $filename and die "$0: Nothing on STDIN";
+    }
 
     my $sch = Parse::Crontab::English->new ( { file => $filename } );
-    print "Got a good result.\n";
 
     #  Sort the output by incoming line number, so that the summary is in the
     #  same order.
