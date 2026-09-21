@@ -30,11 +30,128 @@ Perhaps a little code snippet.
     use Parse::Crontab::English;
 
     my $foo = Parse::Crontab::English->new( file => 'crontab.lst');
+
+We now have the full details of each relevant crontab line in $foo->{ base },
+and a summary in $foo->{ summary } as a HoA (hash of arrays).  The hash key is
+the command line (the last entry in the line from crontab), and the detail
+consists of days of the month, days of the week, a complete list of the times
+(hours and minutes) of each run, and a summary of the same times.
+
+Because a command may have multiple entries (perhaps a weekday run and a
+different weekend run), this is an array.
+
+So, for the crontab line
+
+    15  9-17 *   *   0-2,4,6 cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err
+
+the detail for 'cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.er'
+will contain
+
+    'days_english' => 'every day of the month'
+    'dow_name' => 'The following 5 days of the week: Sunday, Monday, Tuesday, Thursday, and Saturday'
+    'dow_name_range' => 'Sunday to Tuesday, Thursday, and Saturday'
+    'dow_number' => 'The following 5 days of the week: 0, 1, 2, 4, and 6'
+    'hours_minutes' => 'at the hours 9h00, 10h00, 11h00, 12h00, 13h00, 14h00, 15h00, 16h00, and 17h00, at :15 after the hour'
+    'hm_short' => '9 times daily (once an hour), starting at 9h15, and ending at 17h15'
+
+So there is a variety of long and short descriptions for the month days, week
+days, and hours and minutes.
+
+The example script 'explain_crontab' shows the following result for this line:
+
+    Command line: cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err
+    --> Detail (line 0):
+      --> Days of the week: Sunday to Tuesday, Thursday, and Saturday
+      --> Hours and Minutes: 9 times daily (once an hour), starting at 9h15, and ending at 17h15
+
+Since 'Run this every day of the month' is the default, I've cut out that
+information.
+
     ...
 
 =head1 SUBROUTINES/METHODS
 
-TO COME
+=head2 C<new>
+
+  my $foo = Parse::Crontab::English->new( file => $filename);
+
+Loads the crontab definition contained in the named file, and generates a
+summary of each line.
+
+The result is a hash whose key is the command line executed by cron; since
+command lines can be duplciated, the value is an AoH, with the hash containing
+the base values from Parse::Crontab and the summary containing English
+descriptions of when the job will run.
+
+=head2 Values straight from Parse::Crontab:
+
+=head3 C<mon_range>
+
+The sorted list of months that the job will run. Values range from 1 to 12.
+
+=head3 C<day_range>
+
+The sorted list of days of the month that the job will run. Values range from 1
+to 31.
+
+=head3 C<dow_range>
+
+The sorted list of days of the week that the job will run. Values run from 0 to
+7, and there may be both 0 and 7 (Sunday).
+
+=head3 C<hour_range>
+
+Ths sorted list of hours that the job will run. Values run from 0 to 23.
+
+=head3 C<min_range>
+
+The sorted list of minutes that the job will run. Values run from 0 to 59.
+
+=head2 Values from Parse::Crontab::English
+
+=head3 C<dow_range>
+
+This is the sorted numeric range of days from 0 to 6. If the original values
+where 0-6 or 1-7, this is mapped to 0-6.
+
+=head3 C<days_english>
+
+The same information as the previous field, but using the English names for the
+days.  Not everyine knows that 0 is Sunday.
+
+=head3 C<day_name_range>
+
+If all days of the week are selected, this just contains 'every day of the
+week', which is usually information that can be discarded. If just one day of
+the week is selected, this contains 'just Tuesday' (for example). A list of
+days is separated with a comma, and the Oxford Comma is used. So a list will
+finish with 'second_to_last, and last'.
+
+If there are several days but they can be gethered into a list, that's also
+done. So this list may contain 'Monday to Wednesday, and Friday', for example.
+
+=head3 C<hours_minutes>
+
+If a job is running every minute, this contains 'every minute of the following
+hours: ', followed by a list of the hours.
+
+Otherwise, this contains 'at C<list of hours>, at C<list of minutes> after the
+hour'.
+
+=head3 C<hm_short>
+
+If a job is running every minute, this short version of 'hours_minutes'
+contains 'every minute, for x times, from y to z' where x is how often the job
+runs in an hour, y is the first time it runs, and z is the last time it runs.
+
+Otherwise, this contains 'x times daily (y times an hour), starting at z and
+ending at w', where x is how many times it runs in total, y is how many times
+it runs per hour, z is the first time it runs and w is the last time it runs.
+
+=head3 C<line_num>
+
+This is the line number from the original file -- useful if you want to go and
+adjust the crontab after reading the explanation.
 
 =cut
 
