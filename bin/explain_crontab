@@ -17,6 +17,9 @@ use Parse::Crontab::English;
     my $filename = pop @ARGV;
     my $fh;
 
+    #  Handle either a filename on the command line, or stuff coming from a
+    #  stream (like 'crontab -l | explain_crontab').
+
     if ( defined $filename ) {
 
       ( -e $filename ) or die "$0: Unable to fine $filename";
@@ -34,7 +37,7 @@ use Parse::Crontab::English;
     my $sch = Parse::Crontab::English->new ( { file => $filename } );
 
     #  Sort the output by incoming line number, so that the summary is in the
-    #  same order.
+    #  same order as the original file or stream.
 
     foreach my $cmd (
       sort { $sch->{ summary }{ $a }[0]{ line_num } <=>
