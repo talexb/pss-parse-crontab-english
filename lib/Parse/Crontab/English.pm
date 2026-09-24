@@ -83,6 +83,15 @@ command lines can be duplciated, the value is an AoH, with the hash containing
 the base values from Parse::Crontab and the summary containing English
 descriptions of when the job will run.
 
+=head2 C<load>
+
+Internal routine, called from C<new>.
+
+=head2 C<hm>
+
+Internal routine, called from C<load> to format hour (and possibly) minutes
+into a nice output string.
+
 =head2 Values straight from Parse::Crontab:
 
 =head3 C<mon_range>
