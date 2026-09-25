@@ -23,7 +23,7 @@ our $VERSION = '0.01';
 =head1 SYNOPSIS
 
 Parses the supplied crontab (using Parse::Crontab) and then examines the data
-in order to create an explanation of how often a command runs.
+in order to create a comprehensive explanation of how often a command runs.
 
 Perhaps a little code snippet.
 
@@ -47,6 +47,7 @@ So, for the crontab line
 the detail for 'cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.er'
 will contain
 
+    'months_english' => 'every month'
     'days_english' => 'every day of the month'
     'dow_name' => 'The following 5 days of the week: Sunday, Monday, Tuesday, Thursday, and Saturday'
     'dow_name_range' => 'Sunday to Tuesday, Thursday, and Saturday'
@@ -54,18 +55,18 @@ will contain
     'hours_minutes' => 'at the hours 9h00, 10h00, 11h00, 12h00, 13h00, 14h00, 15h00, 16h00, and 17h00, at :15 after the hour'
     'hm_short' => '9 times daily (once an hour), starting at 9h15, and ending at 17h15'
 
-So there is a variety of long and short descriptions for the month days, week
-days, and hours and minutes.
+There is a variety of long and short descriptions for the months, days of the
+month, days of the week, hours, and minutes.
 
 The example script 'explain_crontab' shows the following result for this line:
 
     Command line: cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err
-    --> Detail (line 0):
+    --> Detail (line 1):
       --> Days of the week: Sunday to Tuesday, Thursday, and Saturday
       --> Hours and Minutes: 9 times daily (once an hour), starting at 9h15, and ending at 17h15
 
-Since 'Run this every day of the month' is the default, I've cut out that
-information.
+Since both 'every day of the month' and 'every month' are the defaults, the
+script cuts those comments out of the summary.
 
     ...
 
@@ -213,17 +214,17 @@ sub load
 
       if ( @{ $entry->{ mon_range } } == 12 ) {
 
-        $entry->{ mon_english } = 'every month';
+        $entry->{ months_english } = 'every month';
 
       } else {
 
-        $entry->{ mon_english } =
+        $entry->{ months_english } =
           "The following " . scalar @{ $entry->{ mon_range } } .
           " months: " . join ( ', ', @{ $entry->{ mon_range } } );
 
-        if ( $entry->{ mon_english } =~ /, / ) {
+        if ( $entry->{ months_english } =~ /, / ) {
 
-          $entry->{ mon_english } =~ s/(.+), /$1, and /;
+          $entry->{ months_english } =~ s/(.+), /$1, and /;
         }
       }
 
@@ -289,78 +290,12 @@ sub load
           $entry->{ dow_name } =~ s/(.+), /$1, and /;
         }
 
-        #  For my next trick, I'm going to see if I can reduce the list to a
-        #  range, in order to map 1-5 to Monday to Friday. All we know about
-        #  the list of day numbers is that they're ordered.
-
-        my ( $first_day, $last_day, @ranges );
-
-        foreach my $off ( 0 .. 6 ) {
-
-          my $this_day = $entry->{ dow_range }[ $off ];
-          if ( !defined $this_day ) { next; }
-
-          if ( defined $first_day ) {
-
-            if ( defined $last_day ) {
-
-              if ( $last_day + 1 == $this_day ) {
-
-                #  We're still in order, continue.
-
-                $last_day = $this_day;
-
-              } else {
-
-                #  Not in order -- need to close off previous order and start a new one.
-
-                push ( @ranges, [ $first_day, $last_day ] );
-
-                $first_day = $this_day;
-                undef $last_day;
-              }
-              
-            } else {
-
-              if ( $first_day + 1 == $this_day ) {
-
-                #  We're still in order, continue.
-
-                $last_day = $entry->{ dow_range }[ $off ];
-
-              } else {
-
-                #  Not in order -- need to close off previous order and start a new one.
-
-                push ( @ranges, [ $first_day, $first_day ] );
-                $first_day = $entry->{ dow_range }[ $off ];
-              }
-            }
-
-          } else {
-
-            $first_day = $entry->{ dow_range }[ $off ];
-          }
-        }
-
-        #  We may need to capture the last range ..
-
-        if ( @ranges == 0 || defined $first_day ) {
-
-          if ( defined $last_day ) {
-
-            push ( @ranges, [ $first_day, $last_day ] );
-
-          } else {
-
-            push ( @ranges, [ $first_day, $first_day ] );
-          }
-        }
+        my $ranges = determine_ranges ( $entry->{ dow_range }, [ 0 .. 6 ] );
 
         #  Create name_short using the ranges we've found.
 
         my @day_list;
-        foreach my $r ( @ranges ) {
+        foreach my $r ( @$ranges ) {
 
           if ( $r->[ 0 ] == $r->[ 1 ] ) {
 
@@ -454,6 +389,84 @@ sub hm
     my ( $h, $m ) = @_;
 
     return ( sprintf ( "${h}h%02d", $m // 0 ) );
+}
+
+#  Figure out the ranges from a set of values.
+
+sub determine_ranges
+{
+    my ( $input_range, $possible_values ) = @_;
+
+    #  Original comment when this code was just for ranges of days: For my next
+    #  trick, I'm going to see if I can reduce the list to a range, in order to
+    #  map 1-5 to Monday to Friday. All we know about the list of day numbers
+    #  is that they're ordered.
+
+    my ( $first, $last, @ranges );
+
+    foreach my $off ( 0 .. ( scalar @$possible_values ) - 1 ) {
+
+      my $this = $input_range->[ $off ];
+      if ( !defined $this ) { next; }
+
+      if ( defined $first ) {
+
+        if ( defined $last ) {
+
+          if ( $last + 1 == $this ) {
+
+            #  We're still in order, continue.
+
+            $last = $this;
+
+          } else {
+
+            #  Not in order -- need to close off previous order and start a new one.
+
+            push ( @ranges, [ $first, $last ] );
+
+            $first = $this;
+            undef $last;
+          }
+          
+        } else {
+
+          if ( $first + 1 == $this ) {
+
+            #  We're still in order, continue.
+
+            $last = $input_range->[ $off ];
+
+          } else {
+
+            #  Not in order -- need to close off previous order and start a new one.
+
+            push ( @ranges, [ $first, $first ] );
+            $first = $input_range->[ $off ];
+          }
+        }
+
+      } else {
+
+        $first = $input_range->[ $off ];
+      }
+    }
+
+    #  We may need to capture the last range ..
+
+    if ( @ranges == 0 || defined $first ) {
+
+      if ( defined $last ) {
+
+        push ( @ranges, [ $first, $last ] );
+
+      } else {
+
+        push ( @ranges, [ $first, $first ] );
+      }
+    }
+
+    return ( \@ranges );
 }
 
 
