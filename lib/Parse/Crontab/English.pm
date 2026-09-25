@@ -257,7 +257,7 @@ sub load
 
       my %days = (
         0 => 'Sunday',   1 => 'Monday', 2 => 'Tuesday',  3 => 'Wednesday',
-        4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday',
+        4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday',
       );
 
       if ( @{ $entry->{ dow_range } } == 7 ) {
@@ -290,7 +290,7 @@ sub load
           $entry->{ dow_name } =~ s/(.+), /$1, and /;
         }
 
-        my $ranges = determine_ranges ( $entry->{ dow_range }, [ 0 .. 6 ] );
+        my $ranges = determine_ranges ( $entry->{ dow_range }, [ sort keys %days ] );
 
         #  Create name_short using the ranges we've found.
 
