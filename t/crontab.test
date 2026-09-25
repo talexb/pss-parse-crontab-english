@@ -48,3 +48,7 @@
 1	7	*	*	*	cd /home/xyz/tuv && ./cleanup_error_files.pl abc ghi def qrs >>cef.out 2>>cef.err
 2   16  *   *   1,3,5   cd /home/xyz/extra && ./mwf_script.sh >mwf.out 2>mwf.err
 15  9-17 *   *   0-2,4,6 cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err
+0   11  1   *   *   cd /home/xyz/extra && ./day_of_month_argument.sh >doma.out 2>doma.err
+0   14  *   1   *   cd /home/xyz/extra && ./month_argument.sh >ma.out 2>ma.err
+0   11  1-5,13,20-22   *   *   cd /home/xyz/extra && ./day_of_month_argument.sh >doms.out 2>doms.err
+0   14  *   1,4,7,10   *   cd /home/xyz/extra && ./every_third_month_argument.sh >etma.out 2>etma.err

@@ -217,13 +217,13 @@ sub load
 
       } else {
 
-        $entry->{ mons_english } =
+        $entry->{ mon_english } =
           "The following " . scalar @{ $entry->{ mon_range } } .
           " months: " . join ( ', ', @{ $entry->{ mon_range } } );
 
-        if ( $entry->{ mons_english } =~ /, / ) {
+        if ( $entry->{ mon_english } =~ /, / ) {
 
-          $entry->{ mons_english } =~ s/(.+), /$1, and /;
+          $entry->{ mon_english } =~ s/(.+), /$1, and /;
         }
       }
 

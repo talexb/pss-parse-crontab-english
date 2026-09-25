@@ -19,7 +19,7 @@ my $test_file = "$Bin/crontab.test";
 
     is ( ref $obj->{ base }{ entries }, 'ARRAY', "Expected an AoA data type" );
     ok ( exists ( $obj->{ summary } ), "Summary exists" );
-    is ( 47, scalar keys %{ $obj->{ summary } }, "Check key count in summary" );
+    is ( 51, scalar keys %{ $obj->{ summary } }, "Check key count in summary" );
 
     foreach my $ent ( keys %{ $obj->{ summary } } ) {
 
@@ -50,7 +50,7 @@ my $test_file = "$Bin/crontab.test";
 
           like ( $e->{ days_english }, qr/The following \d+ days:/,
             "Reasonable list of days of the week." );
-          # diag ( "Day range is @{ $e->{ day_range } }" );
+          diag ( "Day range is @{ $e->{ day_range } }" );
         }
 
         #  Check for all days of the week ..
