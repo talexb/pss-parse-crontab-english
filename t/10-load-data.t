@@ -25,6 +25,20 @@ my $test_file = "$Bin/crontab.test";
 
       foreach my $e ( @{ $obj->{ summary }{ $ent } } ) {
 
+        #  Check for all of the month s of the year ..
+
+        if ( $e->{ mon_range }[ 0 ] == 1 && $e->{ mon_range }[ -1 ] == 12 ) {
+
+          is ( $e->{ mon_english },
+            'every month', "Full mon range -> every month" );
+
+        } else {
+
+          like ( $e->{ mon_english }, qr/The following \d+ months:/,
+            "Reasonable list of months." );
+          diag ( "Month range is @{ $e->{ mon_range } }" );
+        }
+
         #  Check for all days of the month ..
 
         if ( $e->{ day_range }[ 0 ] == 1 && $e->{ day_range }[ -1 ] == 31 ) {

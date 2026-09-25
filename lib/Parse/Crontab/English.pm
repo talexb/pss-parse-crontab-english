@@ -199,17 +199,33 @@ sub load
       #  Next, save the good stuff.
 
       push ( @{ $data{ $line->{ command } } },
-        { day_range  => $line->{ schedule }{ day }{ expanded },
+        { mon_range  => $line->{ schedule }{ month }{ expanded },
+          day_range  => $line->{ schedule }{ day }{ expanded },
           dow_range  => $line->{ schedule }{ day_of_week }{ expanded },
           hour_range => $line->{ schedule }{ hour }{ expanded },
-          min_range  => $line->{ schedule }{ minute }{ expanded },
-          mon_range  => $line->{ schedule }{ month }{ expanded } } );
+          min_range  => $line->{ schedule }{ minute }{ expanded } } );
 
       #  Get the entry so we have less typing to do. Then, if we see the range
       #  of days is min to max, add 'all days' to the english description. More
       #  to come, obviously.
 
       my $entry = $data{ $line->{ command } }[ -1 ];
+
+      if ( @{ $entry->{ mon_range } } == 12 ) {
+
+        $entry->{ mon_english } = 'every month';
+
+      } else {
+
+        $entry->{ mons_english } =
+          "The following " . scalar @{ $entry->{ mon_range } } .
+          " months: " . join ( ', ', @{ $entry->{ mon_range } } );
+
+        if ( $entry->{ mons_english } =~ /, / ) {
+
+          $entry->{ mons_english } =~ s/(.+), /$1, and /;
+        }
+      }
 
       #  Well, it looks like the parent module sometimes messes up and reads 7
       #  (Sunday) as both 0 and 7 -- meaning that we get two entries, both of
