@@ -47,16 +47,11 @@ So, for the crontab line
 the detail for 'cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.er'
 will contain
 
-    'months_english' => 'every month'
-    'days_english' => 'every day of the month'
-    'dow_name' => 'the following 5 days of the week: Sunday, Monday, Tuesday, Thursday, and Saturday'
-    'dow_name_range' => 'Sunday to Tuesday, Thursday, and Saturday'
-    'dow_number' => 'the following 5 days of the week: 0, 1, 2, 4, and 6'
+    'month_desc' => 'every month'
+    'day_desc' => 'every day of the month'
+    'dow_desc' => 'Sunday to Tuesday, Thursday, and Saturday'
     'hours_minutes' => 'at the hours 9h00, 10h00, 11h00, 12h00, 13h00, 14h00, 15h00, 16h00, and 17h00, at :15 after the hour'
-    'hm_short' => '9 times daily (once an hour), starting at 9h15, and ending at 17h15'
-
-There is a variety of long and short descriptions for the months, days of the
-month, days of the week, hours, and minutes.
+    'hm_desc' => '9 times daily (once an hour), starting at 9h15, and ending at 17h15'
 
 The example script 'explain_crontab' shows the following result for this line:
 
