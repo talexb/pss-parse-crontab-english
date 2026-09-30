@@ -212,21 +212,97 @@ sub load
 
       my $entry = $data{ $line->{ command } }[ -1 ];
 
+      #  Look at the month.
+
+      my %months = (
+        1 => 'January',    2 => 'February', 3 => 'March',     4 => 'April',
+        5 => 'May',        6 => 'June',     7 => 'July',      8 => 'August',
+        9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
+      );
+
       if ( @{ $entry->{ mon_range } } == 12 ) {
 
-        $entry->{ months_english } = 'every month';
+        $entry->{ month_desc } = 'every month';
+
+      } elsif ( @{ $entry->{ mon_range } } == 1 ) {
+
+        $entry->{ month_desc } = "just the month of $months{ $entry->{ mon_range }[ 0 ] }";
 
       } else {
 
-        $entry->{ months_english } =
-          "The following " . scalar @{ $entry->{ mon_range } } .
-          " months: " . join ( ', ', @{ $entry->{ mon_range } } );
+        my $ranges = determine_ranges ( $entry->{ mon_range }, [ sort keys %months ] );
 
-        if ( $entry->{ months_english } =~ /, / ) {
+        #  Create a list of months using the ranges we've found.
 
-          $entry->{ months_english } =~ s/(.+), /$1, and /;
+        my @month_list;
+        foreach my $r ( @$ranges ) {
+
+          if ( $r->[ 0 ] == $r->[ 1 ] ) {
+
+            push ( @month_list, $months{ $r->[ 0 ] } );
+
+          } else {
+
+            push ( @month_list, "$months{ $r->[ 0 ] } to $months{ $r->[ 1 ] }" );
+          }
+        }
+
+        #  Commify the result.
+
+        my $list = join ( ', ', @month_list );
+        if ( $list =~ /, / ) {
+
+          $list =~ s/(.+), /$1, and /;
+        }
+
+        $entry->{ month_desc } = "The following " . scalar @month_list .  " months: $list";
+      }
+
+      #  Look at day of month.
+
+      if ( @{ $entry->{ day_range } } == 31 ) {
+
+        $entry->{ day_desc } = 'every day of the month';
+
+      } elsif ( @{ $entry->{ day_range } } == 1 ) {
+
+        $entry->{ day_desc } = "Just on day $entry->{ day_range }[ 0 ]";
+
+      } else {
+
+        my $ranges = determine_ranges ( $entry->{ day_range }, [ 1 .. 31 ] );
+
+        #  Create a list of days using the ranges we've found.
+
+        my @day_list;
+        foreach my $r ( @$ranges ) {
+
+          if ( $r->[ 0 ] == $r->[ 1 ] ) {
+
+            push ( @day_list, $r->[ 0 ] );
+
+          } else {
+
+            push ( @day_list, "$r->[ 0 ]-$r->[ 1 ]" );
+          }
+        }
+
+        #  Commify the result.
+
+        my $list = join ( ', ', @day_list );
+        if ( $list =~ /, / ) {
+
+          $list =~ s/(.+), /$1, and /;
+        }
+
+        $entry->{ day_desc } = "The following " . scalar @day_list .  " days: $list";
+        if ( $entry->{ day_range } =~ /, / ) {
+
+          $entry->{ day_desc } =~ s/(.+), /$1, and /;
         }
       }
+
+      #  Look at the day of the week
 
       #  Well, it looks like the parent module sometimes messes up and reads 7
       #  (Sunday) as both 0 and 7 -- meaning that we get two entries, both of
@@ -234,26 +310,9 @@ sub load
       #  One side effect is that I won't have to pop off the last element of
       #  the array, since we'll now have a maximum of seven items.
 
+      # $entry->{ dow_value_range } =
       $entry->{ dow_range } =
         [ uniq ( map { $_ % 7  } @{ $entry->{ dow_range } } ) ];
-
-      if ( @{ $entry->{ day_range } } == 31 ) {
-
-        $entry->{ days_english } = 'every day of the month';
-
-      } else {
-
-        $entry->{ days_english } =
-          "The following " . scalar @{ $entry->{ day_range } } .
-          " days: " . join ( ', ', @{ $entry->{ day_range } } );
-
-        if ( $entry->{ days_english } =~ /, / ) {
-
-          $entry->{ days_english } =~ s/(.+), /$1, and /;
-        }
-      }
-
-      #  Check Day of Week .. If the range is 0 .. 6, it's every day.
 
       my %days = (
         0 => 'Sunday',   1 => 'Monday', 2 => 'Tuesday',  3 => 'Wednesday',
@@ -262,37 +321,17 @@ sub load
 
       if ( @{ $entry->{ dow_range } } == 7 ) {
 
-        $entry->{ dow_number } = 'every day of the week';
-        $entry->{ dow_name }   = 'every day of the week';
+        $entry->{ dow_desc }   = 'every day of the week';
 
       } elsif ( @{ $entry->{ dow_range } } == 1 ) {
 
-        $entry->{ dow_number } = 'just on day ' .    $entry->{ dow_range }[ 0 ];
-        $entry->{ dow_name }   = 'just on ' . $days{ $entry->{ dow_range }[ 0 ] };
+        $entry->{ dow_desc }   = 'just on ' . $days{ $entry->{ dow_range }[ 0 ] };
 
       } else {
 
-        $entry->{ dow_number } = 
-          "The following " . scalar @{ $entry->{ dow_range } } .
-          " days of the week: " . join ( ', ', @{ $entry->{ dow_range } } );
-
-        if ( $entry->{ dow_number } =~ /, / ) {
-
-          $entry->{ dow_number } =~ s/(.+), /$1, and /;
-        }
-
-        $entry->{ dow_name } = 
-          "The following " . scalar @{ $entry->{ dow_range } } .
-          " days of the week: " . join ( ', ', map { $days{ $_ } } @{ $entry->{ dow_range } } );
-
-        if ( $entry->{ dow_name } =~ /, / ) {
-
-          $entry->{ dow_name } =~ s/(.+), /$1, and /;
-        }
-
         my $ranges = determine_ranges ( $entry->{ dow_range }, [ sort keys %days ] );
 
-        #  Create name_short using the ranges we've found.
+        #  Create day_name_range using the ranges we've found.
 
         my @day_list;
         foreach my $r ( @$ranges ) {
@@ -305,16 +344,17 @@ sub load
 
             push ( @day_list, "$days{ $r->[ 0 ] } to $days{ $r->[ 1 ] }" );
           }
+        }
 
-          $entry->{ dow_name_range } = join ( ', ', @day_list );
-          if ( $entry->{ dow_name_range } =~ /, / ) {
+        $entry->{ dow_desc } = "The following " .
+          ( scalar @{ $entry->{ dow_range } } ) . " days of the week: " .
+          join ( ', ', @day_list );
 
-            $entry->{ dow_name_range } =~ s/(.+), /$1, and /;
-          }
+        if ( $entry->{ dow_desc } =~ /, / ) {
+
+          $entry->{ dow_desc } =~ s/(.+), /$1, and /;
         }
       }
-
-      #  Now I'd like to show all of the possible times. This may be a lot.
 
       #  If it's every minute, then just show that, plus the hours.
 
@@ -330,7 +370,7 @@ sub load
         #  appropriately formatted time. (There's a bit of copy-pasta going on
         #  here, obviously.)
 
-        $entry->{ hm_short } = "every minute, for " .
+        $entry->{ hm_range } = "every minute, for " .
           ( scalar @{ $entry->{ hour_range } } ) . " hours, from " .
           hm ( @{ $entry->{ hour_range } }[  0 ] ) . " to " .
           hm ( @{ $entry->{ hour_range } }[ -1 ] );
@@ -358,19 +398,19 @@ sub load
 
         if ( $times == 1 ) {
 
-          $entry->{ hm_short } = "Once, at " .
+          $entry->{ hm_range } = "Once, at " .
             hm ( $entry->{ hour_range }->[ 0 ], $entry->{ min_range }->[ 0 ] );
 
         } else {
 
-          $entry->{ hm_short } = "$times times daily (" .
+          $entry->{ hm_range } = "$times times daily (" .
             ( scalar @{ $entry->{ min_range } } ) . " times an hour), starting at " .
             hm ( @{ $entry->{ hour_range } }[  0 ], @{ $entry->{ min_range } }[   0 ] ) .
             ", and ending at " . 
             hm ( @{ $entry->{ hour_range } }[ -1 ], @{ $entry->{ min_range } }[  -1 ] );
 
-          $entry->{ hm_short } =~ s/\(1 times/(once/;   #  Ugh, English.
-          $entry->{ hm_short } =~ s/\(2 times/(twice/;  #  Ugh, English.
+          $entry->{ hm_range } =~ s/\(1 times/(once/;   #  Ugh, English.
+          $entry->{ hm_range } =~ s/\(2 times/(twice/;  #  Ugh, English.
         }
       }
 

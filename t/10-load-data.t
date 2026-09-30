@@ -27,28 +27,36 @@ my $test_file = "$Bin/crontab.test";
 
         #  Check for all of the month s of the year ..
 
-        if ( $e->{ mon_range }[ 0 ] == 1 && $e->{ mon_range }[ -1 ] == 12 ) {
+        if ( @{ $e->{ mon_range } } == 1 ) {
 
-          is ( $e->{ months_english },
+          like ( $e->{ month_desc }, qr/just the month of \w+/, "Single month" );
+
+        } elsif ( $e->{ mon_range }[ 0 ] == 1 && $e->{ mon_range }[ -1 ] == 12 ) {
+
+          is ( $e->{ month_desc },
             'every month', "Full mon range -> every month" );
 
         } else {
 
-          like ( $e->{ months_english }, qr/The following \d+ months:/,
+          like ( $e->{ month_desc }, qr/The following \d+ months:/,
             "Reasonable list of months." );
           diag ( "Month range is @{ $e->{ mon_range } }" );
         }
 
         #  Check for all days of the month ..
 
-        if ( $e->{ day_range }[ 0 ] == 1 && $e->{ day_range }[ -1 ] == 31 ) {
+        if ( @{ $e->{ day_range } } == 1 ) {
 
-          is ( $e->{ days_english },
+          like ( $e->{ day_desc }, qr/Just on day \d+/, 'Single day' );
+
+        } elsif ( $e->{ day_range }[ 0 ] == 1 && $e->{ day_range }[ -1 ] == 31 ) {
+
+          is ( $e->{ day_desc },
             'every day of the month', "Full day range -> every day (month)" );
 
         } else {
 
-          like ( $e->{ days_english }, qr/The following \d+ days:/,
+          like ( $e->{ day_desc }, qr/The following \d+ days:/,
             "Reasonable list of days of the week." );
           diag ( "Day range is @{ $e->{ day_range } }" );
         }
@@ -57,43 +65,41 @@ my $test_file = "$Bin/crontab.test";
 
         if ( @{ $e->{ dow_range } } == 7 ) {
 
-          is ( $e->{ dow_number },
+          is ( $e->{ dow_desc },
             'every day of the week', "Full day range -> every day (week)" );
 
         } elsif ( @{ $e->{ dow_range } } == 1 ) {
 
-          like ( $e->{ dow_number },
-            qr/just on day \d/, "Single day of the week (number)" );
-          like ( $e->{ dow_name },
+          like ( $e->{ dow_desc },
             qr/just on \w+day/, "Single day of the week (name)" );
 
         } else {
 
-          like ( $e->{ dow_number }, qr/The following \d+ days of the week:/,
+          like ( $e->{ dow_desc }, qr/The following \d+ days of the week:/,
             "Reasonable list of days of the week." );
           # diag ( "Week day range is @{ $e->{ dow_range } }" );
         }
         # diag ( "DOW-number: $e->{ dow_number }" );
         # diag ( "DOW-name: $e->{ dow_name }" );
 
-        if ( exists $e->{ dow_name_range } ) {
+#       if ( exists $e->{ dow_name_range } ) {
 
-          if ( @{ $e->{ dow_range } } == 1 ) {
+#         if ( @{ $e->{ dow_range } } == 1 ) {
 
-            like ( $e->{ dow_name_range }, qr/\w+day/, "A single week day" );
+#           like ( $e->{ dow_name_range }, qr/\w+day/, "A single week day" );
 
-          } else {
+#         } else {
 
-            #  This only tests for a single range, when we could have output
-            #  more. We might also have a single day, followed by a range.
-            #  Testing is hard.
+#           #  This only tests for a single range, when we could have output
+#           #  more. We might also have a single day, followed by a range.
+#           #  Testing is hard.
 
-            like ( $e->{ dow_name_range },
-              qr/\w+day (and|to) \w+day|(\w+day, )+and \w+day/,
-              "A single range of days or two days, or a commified list" );
-          }
-          # diag ( "DOW-name_range ", $e->{ dow_name_range } );
-        }
+#           like ( $e->{ dow_name_range },
+#             qr/\w+day (and|to) \w+day|(\w+day, )+and \w+day/,
+#             "A single range of days or two days, or a commified list" );
+#         }
+#         # diag ( "DOW-name_range ", $e->{ dow_name_range } );
+#       }
 
         #  Check that something's there for the hours_minutes ..
 
@@ -122,7 +128,7 @@ my $test_file = "$Bin/crontab.test";
 
         #  Check that something's there for the hr_short ..
 
-        ok ( defined $e->{ hm_short }, "Hours and minutes short defined" );
+        ok ( defined $e->{ hm_range }, "Hours and minutes short defined" );
         # diag ( "HM: $e->{ hm_short }" );
 
         #  Check for original line ..
