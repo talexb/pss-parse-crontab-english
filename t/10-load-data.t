@@ -38,9 +38,9 @@ my $test_file = "$Bin/crontab.test";
 
         } else {
 
-          like ( $e->{ month_desc }, qr/The following \d+ months:/,
+          like ( $e->{ month_desc }, qr/the following \d+ months:/,
             "Reasonable list of months." );
-          diag ( "Month range is @{ $e->{ mon_range } }" );
+          # diag ( "Month range is @{ $e->{ mon_range } }" );
         }
 
         #  Check for all days of the month ..
@@ -56,9 +56,9 @@ my $test_file = "$Bin/crontab.test";
 
         } else {
 
-          like ( $e->{ day_desc }, qr/The following \d+ days:/,
+          like ( $e->{ day_desc }, qr/the following \d+ days:/,
             "Reasonable list of days of the week." );
-          diag ( "Day range is @{ $e->{ day_range } }" );
+          # diag ( "Day range is @{ $e->{ day_range } }" );
         }
 
         #  Check for all days of the week ..
@@ -75,7 +75,7 @@ my $test_file = "$Bin/crontab.test";
 
         } else {
 
-          like ( $e->{ dow_desc }, qr/The following \d+ days of the week:/,
+          like ( $e->{ dow_desc }, qr/the following \d+ days of the week:/,
             "Reasonable list of days of the week." );
           # diag ( "Week day range is @{ $e->{ dow_range } }" );
         }
@@ -128,7 +128,7 @@ my $test_file = "$Bin/crontab.test";
 
         #  Check that something's there for the hr_short ..
 
-        ok ( defined $e->{ hm_range }, "Hours and minutes short defined" );
+        ok ( defined $e->{ hm_desc }, "Hours and minutes description defined" );
         # diag ( "HM: $e->{ hm_short }" );
 
         #  Check for original line ..

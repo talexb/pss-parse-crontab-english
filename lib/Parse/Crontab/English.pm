@@ -49,9 +49,9 @@ will contain
 
     'months_english' => 'every month'
     'days_english' => 'every day of the month'
-    'dow_name' => 'The following 5 days of the week: Sunday, Monday, Tuesday, Thursday, and Saturday'
+    'dow_name' => 'the following 5 days of the week: Sunday, Monday, Tuesday, Thursday, and Saturday'
     'dow_name_range' => 'Sunday to Tuesday, Thursday, and Saturday'
-    'dow_number' => 'The following 5 days of the week: 0, 1, 2, 4, and 6'
+    'dow_number' => 'the following 5 days of the week: 0, 1, 2, 4, and 6'
     'hours_minutes' => 'at the hours 9h00, 10h00, 11h00, 12h00, 13h00, 14h00, 15h00, 16h00, and 17h00, at :15 after the hour'
     'hm_short' => '9 times daily (once an hour), starting at 9h15, and ending at 17h15'
 
@@ -255,7 +255,7 @@ sub load
           $list =~ s/(.+), /$1, and /;
         }
 
-        $entry->{ month_desc } = "The following " . scalar @month_list .  " months: $list";
+        $entry->{ month_desc } = "the following " . scalar @month_list .  " months: $list";
       }
 
       #  Look at day of month.
@@ -295,7 +295,7 @@ sub load
           $list =~ s/(.+), /$1, and /;
         }
 
-        $entry->{ day_desc } = "The following " . scalar @day_list .  " days: $list";
+        $entry->{ day_desc } = "the following " . scalar @day_list .  " days: $list";
         if ( $entry->{ day_range } =~ /, / ) {
 
           $entry->{ day_desc } =~ s/(.+), /$1, and /;
@@ -346,7 +346,7 @@ sub load
           }
         }
 
-        $entry->{ dow_desc } = "The following " .
+        $entry->{ dow_desc } = "the following " .
           ( scalar @{ $entry->{ dow_range } } ) . " days of the week: " .
           join ( ', ', @day_list );
 
@@ -370,7 +370,7 @@ sub load
         #  appropriately formatted time. (There's a bit of copy-pasta going on
         #  here, obviously.)
 
-        $entry->{ hm_range } = "every minute, for " .
+        $entry->{ hm_desc } = "every minute, for " .
           ( scalar @{ $entry->{ hour_range } } ) . " hours, from " .
           hm ( @{ $entry->{ hour_range } }[  0 ] ) . " to " .
           hm ( @{ $entry->{ hour_range } }[ -1 ] );
@@ -398,19 +398,19 @@ sub load
 
         if ( $times == 1 ) {
 
-          $entry->{ hm_range } = "Once, at " .
+          $entry->{ hm_desc } = "Once, at " .
             hm ( $entry->{ hour_range }->[ 0 ], $entry->{ min_range }->[ 0 ] );
 
         } else {
 
-          $entry->{ hm_range } = "$times times daily (" .
+          $entry->{ hm_desc } = "$times times daily (" .
             ( scalar @{ $entry->{ min_range } } ) . " times an hour), starting at " .
             hm ( @{ $entry->{ hour_range } }[  0 ], @{ $entry->{ min_range } }[   0 ] ) .
             ", and ending at " . 
             hm ( @{ $entry->{ hour_range } }[ -1 ], @{ $entry->{ min_range } }[  -1 ] );
 
-          $entry->{ hm_range } =~ s/\(1 times/(once/;   #  Ugh, English.
-          $entry->{ hm_range } =~ s/\(2 times/(twice/;  #  Ugh, English.
+          $entry->{ hm_desc } =~ s/\(1 times/(once/;   #  Ugh, English.
+          $entry->{ hm_desc } =~ s/\(2 times/(twice/;  #  Ugh, English.
         }
       }
 
