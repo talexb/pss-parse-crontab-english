@@ -404,8 +404,14 @@ sub load
             ", and ending at " . 
             hm ( @{ $entry->{ hour_range } }[ -1 ], @{ $entry->{ min_range } }[  -1 ] );
 
-          $entry->{ hm_desc } =~ s/\(1 times/(once/;   #  Ugh, English.
-          $entry->{ hm_desc } =~ s/\(2 times/(twice/;  #  Ugh, English.
+          $entry->{ hm_desc } =~ s/\(2 times/(twice/;  #  Simplify
+
+          #  If the count of min_range is 1, that means it happens just once in
+          #  an hour, but it's possible that the job doesn't run every hour, so
+          #  once an hour is mis-leading. So delete '(1 times an hour) if it's
+          #  in the description.
+
+          $entry->{ hm_desc } =~ s/ \(1 times an hour\)//;   #  Delete this.
         }
       }
 

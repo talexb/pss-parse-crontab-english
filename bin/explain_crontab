@@ -55,24 +55,25 @@ use Parse::Crontab::English;
 
         if ( $detail->{ month_desc } !~ /^every month/ ) {
 
-          print "  --> months: $detail->{ month_desc }\n";
+          print "  --> Description of the months: $detail->{ month_desc }\n";
         }
 
         #  It's only interesting if it's *not* every day of the month.
 
         if ( $detail->{ day_desc } !~ /^every day/ ) {
 
-          print "  --> Days of the month: $detail->{ day_desc }\n";
+          print "  --> Description of Days of the month: $detail->{ day_desc }\n";
         }
 
         #  Same, it's only interesting if it's *not* every day of the week.
 
         if ( $detail->{ dow_desc } !~ /^every day/ ) {
 
-          print "  --> Days of the week: $detail->{ dow_desc }\n";
+          print "  --> Description of Days of the week: $detail->{ dow_desc }\n";
         }
 
-        print "  --> Hours and Minutes: $detail->{ hm_desc }\n";
+        print "  --> Description of Hours and Minutes: $detail->{ hm_desc }\n";
+        print "  --> Detail of Hours and Minutes: $detail->{ hours_minutes }\n";
       }
     }
 }
