@@ -88,6 +88,11 @@ Internal routine, called from C<new>.
 Internal routine, called from C<load> to format hour (and possibly) minutes
 into a nice output string.
 
+=head2 C<determine_ranges>
+
+Internal routine, called from C<load> to build an AoA containing the value
+ranges.
+
 =head2 Values straight from Parse::Crontab:
 
 =head3 C<mon_range>
