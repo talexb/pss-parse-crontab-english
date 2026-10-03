@@ -9,7 +9,7 @@ use List::Util qw/uniq/;
 
 =head1 NAME
 
-Parse::Crontab::English - Generate useful English documentation on how often a command runs.
+Parse::Crontab::English - Generate useful English documentation on how often a crontab command runs.
 
 =head1 VERSION
 
@@ -23,7 +23,8 @@ our $VERSION = '0.01';
 =head1 SYNOPSIS
 
 Parses the supplied crontab (using Parse::Crontab) and then examines the data
-in order to create a comprehensive explanation of how often a command runs.
+in order to create a comprehensive English explanation of how often a command
+runs.
 
 Perhaps a little code snippet.
 
@@ -34,36 +35,35 @@ Perhaps a little code snippet.
 We now have the full details of each relevant crontab line in $foo->{ base },
 and a summary in $foo->{ summary } as a HoA (hash of arrays).  The hash key is
 the command line (the last entry in the line from crontab), and the detail
-consists of days of the month, days of the week, a complete list of the times
-(hours and minutes) of each run, and a summary of the same times.
+consists of the months, days of the month, days of the week, a complete list of
+the times (hours and minutes) of each run, and a summary of the same times.
 
 Because a command may have multiple entries (perhaps a weekday run and a
-different weekend run), this is an array.
+different weekend run), the result is held in an array.
 
 So, for the crontab line
 
     15  9-17 *   *   0-2,4,6 cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err
 
-the detail for 'cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.er'
-will contain
+the detail for 'cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err'
+will contain a single element, with the following hash values:
 
     'month_desc' => 'every month'
     'day_desc' => 'every day of the month'
     'dow_desc' => 'Sunday to Tuesday, Thursday, and Saturday'
     'hours_minutes' => 'at the hours 9h00, 10h00, 11h00, 12h00, 13h00, 14h00, 15h00, 16h00, and 17h00, at :15 after the hour'
-    'hm_desc' => '9 times daily (once an hour), starting at 9h15, and ending at 17h15'
+    'hm_desc' => '9 times daily, starting at 9h15, and ending at 17h15'
 
 The example script 'explain_crontab' shows the following result for this line:
 
     Command line: cd /home/xyz/extra && ./several_days.sh >sev.out 2>sev.err
     --> Detail (line 1):
-      --> Days of the week: Sunday to Tuesday, Thursday, and Saturday
-      --> Hours and Minutes: 9 times daily (once an hour), starting at 9h15, and ending at 17h15
+      --> Description of Days of the week: the following 5 days of the week: Sunday to Tuesday, Thursday, and Saturday
+      --> Description of Hours and Minutes: 9 times daily, starting at 9h15, and ending at 17h15
+      --> Detail of Hours and Minutes: at the hours 9h00, 10h00, 11h00, 12h00, 13h00, 14h00, 15h00, 16h00, and 17h00, at :15 after the hour
 
 Since both 'every day of the month' and 'every month' are the defaults, the
-script cuts those comments out of the summary.
-
-    ...
+script omits those comments from the summary.
 
 =head1 SUBROUTINES/METHODS
 
@@ -119,36 +119,31 @@ The sorted list of minutes that the job will run. Values run from 0 to 59.
 
 =head2 Values from Parse::Crontab::English
 
-=head3 C<dow_range>
+=head3 C<mon_desc>
 
-This is the sorted numeric range of days from 0 to 6. If the original values
-where 0-6 or 1-7, this is mapped to 0-6.
+The sorted list of months that the job will run.
+This will be 'every month', 'just the month of xx', or a list of months.
 
-=head3 C<days_english>
+=head3 C<day_desc>
 
-The same information as the previous field, but using the English names for the
-days.  Not everyine knows that 0 is Sunday.
+The sorted list of days of the month that the job will run.
+This will be 'every day of the month', 'just on day xx', or a list of days.
 
-=head3 C<day_name_range>
+=head3 C<dow_desc>
 
-If all days of the week are selected, this just contains 'every day of the
-week', which is usually information that can be discarded. If just one day of
-the week is selected, this contains 'just Tuesday' (for example). A list of
-days is separated with a comma, and the Oxford Comma is used. So a list will
-finish with 'second_to_last, and last'.
-
-If there are several days but they can be gethered into a list, that's also
-done. So this list may contain 'Monday to Wednesday, and Friday', for example.
+This is the sorted list of days of the week that the job will run.
+This will be 'every day of the week', 'just on xx', or a list of week days.
 
 =head3 C<hours_minutes>
 
-If a job is running every minute, this contains 'every minute of the following
-hours: ', followed by a list of the hours.
+If a job runs every minute, this contains 'every minute, for xx hours, from yy
+to zz', where xx is the number of hours, yy is the first time, and zz is the
+last time the job runs.
 
-Otherwise, this contains 'at C<list of hours>, at C<list of minutes> after the
+Otherwise, this contains 'at the hours C<list of hours>, at C<list of minutes> after the
 hour'.
 
-=head3 C<hm_short>
+=head3 C<hm_desc>
 
 If a job is running every minute, this short version of 'hours_minutes'
 contains 'every minute, for x times, from y to z' where x is how often the job
@@ -160,8 +155,8 @@ it runs per hour, z is the first time it runs and w is the last time it runs.
 
 =head3 C<line_num>
 
-This is the line number from the original file -- useful if you want to go and
-adjust the crontab after reading the explanation.
+This is the line number from the original file -- this is useful if you want to
+go and adjust the crontab after reading the explanation.
 
 =cut
 
@@ -310,7 +305,6 @@ sub load
       #  One side effect is that I won't have to pop off the last element of
       #  the array, since we'll now have a maximum of seven items.
 
-      # $entry->{ dow_value_range } =
       $entry->{ dow_range } =
         [ uniq ( map { $_ % 7  } @{ $entry->{ dow_range } } ) ];
 
