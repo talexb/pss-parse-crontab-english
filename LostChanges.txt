@@ -1,0 +1,52 @@
+The following changes were lost in an example of poor git-fu, but they were
+supposed to be in the EU_MM_Changes branch.  Just dumping them out here so I
+know what I missed.
+
+tab@music5:~/Pianoforte/Development/pss-parse-crontab-english$ git diff
+diff --git a/Changes b/Changes
+index 91e31fa..084d58d 100644
+--- a/Changes
++++ b/Changes
+@@ -1,5 +1,8 @@
+ Revision history for Parse-Crontab-English
+ 
+-0.01    Date/time
++0.01    2026-10-03, evening
+         First version, released on an unsuspecting world.
+ 
++0.02    2026-10-04, evening
++        Minor release with updates to Makefile.PL so that the executable gets
++        picked up.
+diff --git a/Makefile.PL b/Makefile.PL
+index d6a8de4..31968d4 100644
+--- a/Makefile.PL
++++ b/Makefile.PL
+@@ -19,6 +19,9 @@ my %WriteMakefileArgs = (
+     PREREQ_PM => {
+         'Parse::Crontab' => '0.05',
+     },
++    EXE_FILES => [
++        'bin/crontab_explain'
++    ],
+     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
+     clean => { FILES => 'Parse-Crontab-English-*' },
+ );
+diff --git a/lib/Parse/Crontab/English.pm b/lib/Parse/Crontab/English.pm
+index f5fc3ba..9bf0bb5 100644
+--- a/lib/Parse/Crontab/English.pm
++++ b/lib/Parse/Crontab/English.pm
+@@ -13,11 +13,11 @@ Parse::Crontab::English - Generate useful English documentation on how often a c
+ 
+ =head1 VERSION
+ 
+-Version 0.01
++Version 0.02
+ 
+ =cut
+ 
+-our $VERSION = '0.01';
++our $VERSION = '0.02';
+ 
+ 
+ =head1 SYNOPSIS
+tab@music5:~/Pianoforte/Development/pss-parse-crontab-english$
